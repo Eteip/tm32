@@ -499,8 +499,8 @@
                     </div>
                     <div id="vt">
                         <a href="">View Barcode</a>
-                        <a href="">Ticket Details</a>
-                        <!-- <button id="transfer2">Ticket Details</button> -->
+                        <!-- <a href="">Ticket Details</a> -->
+                        <button id="transfer2" data-bs-toggle="modal" >Ticket Details</button>
                     </div>
                 </div>
                 <div for="footer">
@@ -874,9 +874,11 @@
     <!--  END MAIN OVERLAY -->
 
     <!-- 2ND OVERLAY -->
-    <div class="overlay" id="overlay2">
+    <div class="overlay" id="overlay2" >
+        
         <div class="modal-wapper">
             <div class="modal" id="modal2">
+            <!-- <div class="modal-dialog modal-dialog-scrollable" > -->
                 <div class="modal-header">
                     TICKETS DETAILS
                 </div>
@@ -915,11 +917,7 @@
                         <button>
                         <a href="javascript:clear_modal()" style="color: white;"> CLOSE</a>
                         </button>
-                        <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" style="
-                            height: 16px;
-                            margin-bottom: -2px;
-                            fill: #026CDF;
-                        "><path d="M 9.0449219 2.984375 A 2.0002 2.0002 0 0 0 7.8378906 6.6269531 L 19.560547 15 L 7.8378906 23.373047 A 2.0002 2.0002 0 1 0 10.162109 26.626953 L 24.162109 16.626953 A 2.0002 2.0002 0 0 0 24.162109 13.373047 L 10.162109 3.3730469 A 2.0002 2.0002 0 0 0 9.0449219 2.984375 z"></path></svg> -->
+                        
                     </div>
                     <div style="color: #444;">
                         <span id="s_count"></span> PROCEED
@@ -927,6 +925,7 @@
 
                 </div>
             </div>
+        </div>
         </div>
     </div>
     <!-- END 2ND OVERLAY -->
@@ -990,7 +989,7 @@
                     display: 'inline'
                 }, 800, function() {
                     $("#modal2").animate({
-                        height: '450px'
+                        height: '550px'
                     }, 300, function() {
 
                     });
@@ -1011,6 +1010,7 @@
         }
     </script>
     <!-- <script src="https://code.jquery.com/jquery-3.6.0.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 
 </html>
