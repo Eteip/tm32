@@ -1,0 +1,420 @@
+<div class="owlya-modal-wrapper advance-settings">
+    <h5>Advance Settings</h5>
+    <hr />
+    <mat-dialog-content>
+      <form [formGroup]="form" (ngSubmit)="saveAssessment()">
+        <div class="modal-form">
+          <div class="mt-2" >
+            <div class="option-check-list">
+              <mat-checkbox formControlName="browse_questions" name="browse_questions">
+                <span>Browse questions</span>
+              </mat-checkbox>
+              <mat-checkbox formControlName="enable_chat" name="enable_chat">
+                <span>Enable live chat</span>
+              </mat-checkbox>
+  
+              <div>
+                <div><mat-checkbox [ngbTooltip]="'Time limit at the assessment level overrides time' +
+                 ' limit at section level'" formControlName="is_limited_by_time" name="enableTimer">
+                  <span>Enable timer (max {{subscriptionData?.max_assessment_duration}} minutes)</span>
+                </mat-checkbox></div>
+                <div class="mt-1"><div class="inline-form mb-2" *ngIf="form.get('is_limited_by_time').value">
+                  <div class="form-group">
+                    <label ><b>Enter time</b></label>
+                    <input type="number" class="form-control" min="0"
+                           formControlName="time_limit" />
+  
+                    <ow-form-error-message [errors]="errors" [field]="'time_limit'"
+                                           [fieldLabel]="'Time limit'" [form]="form">
+                    </ow-form-error-message>
+                  </div>
+                </div></div>
+              </div>
+  
+            </div>
+            <hr/>
+            <div class="mt-1">
+              <h6 class="mt-2">Attempts</h6>
+              <div>
+                <div class="inline-form mt-3">
+                  <div class="form-group small-group mr-3" >
+                    <label><b>No of attempts</b></label>
+                    <input type="number" class="form-control" min="0"
+                           formControlName="no_attempt" style="width: 120px" />
+                    <ow-form-error-message [errors]="errors" [field]="'no_attempt'"
+                                           [fieldLabel]="'No of attempt'" [form]="form">
+                    </ow-form-error-message>
+                  </div>
+                </div>
+                <mat-checkbox formControlName="enable_waiting" name="enable_waiting">
+                  <span>Enable waiting period</span>
+                </mat-checkbox>
+              </div>
+              <div *ngIf="form.get('enable_waiting').value">
+                <div class="flexer-inline">
+                  <div class="form-group small-group mr-3">
+                    <input class="form-control" formControlName="attempt_no"
+                           min="1"
+                           placeholder="Attempt No." type="number"/>
+                  </div>
+                  <div class="form-group small-group mr-3">
+                    <input class="form-control" formControlName="period" placeholder="Duration" type="number"/>
+                  </div>
+                  
+                  <div class="form-group small-group mr-3">
+                    <mat-form-field class="select-control">
+                      <mat-select formControlName="period_name" name="period_name">
+                        <mat-option [value]="duration.value" *ngFor="let duration of waitingDuration">
+                          {{duration.name}}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="form-group">
+                    <button type="button"
+                            class="btn small-btn btn-primary"
+                            (click)="addWaitingPeriod()">Add</button>
+                  </div>
+  
+  
+                </div>
+                <ng-container *ngIf="waitingPeriods.length" >
+                  <div class="owlya-card">
+                    <h6 class="section-header-title">Waiting Periods</h6>
+                    <hr>
+                    <div class="table-widget-wrapper">
+                      <div class="table-widget-main">
+                        <table class="table no-thead-border">
+                          <thead>
+                          <tr>
+                            <th>Unsuccessful Attempt</th>
+                            <th>Wait Period</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr  *ngFor="let period of waitingPeriods; let index = index">
+                            <td>After {{ period.attempt_no | ordinal}} attempt</td>
+                            <td>
+                              <ng-container *ngIf="period.interval">{{period.period}}</ng-container>
+                              {{waitingDurationValues[period.interval]}}
+                            </td>
+                            <td>
+                              <span class="owlya-table-options">
+                                <span class="owlya-icon" (click)="removeWaitingPeriod(index)">
+                                <i class="delete-icon"></i>
+                              </span>
+                              </span>
+                            </td>
+                          </tr>
+  
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <p class="text-note mt-1"><small>All subsiquent attempt will have a waiting period of
+                    {{waitingPeriods[waitingPeriods.length - 1].period }}
+                      {{waitingDurationValues[waitingPeriods[waitingPeriods.length - 1].interval]}}
+                    </small></p>
+                  </div>
+  
+                </ng-container>
+              </div>
+            </div>
+            <hr/>
+  
+            <!-- Start here -->
+  
+            <div class=" mt-4" >
+              <div class="form-group">
+                <label><b>Assessment Availability</b></label>
+                <mat-form-field class="select-control">
+                  <mat-select formControlName="availability_type" name="availability_type">
+                    <mat-option [value]="avail.value" *ngFor="let avail of availabilityOptions">
+                      {{avail.name}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <ng-container *ngIf="form.get('availability_type').value==='2'">
+                <div class="form-group padtop-field">
+                  <label><b>No. of days</b></label>
+                  <input type="text" class="form-control" formControlName="number_days"
+                    placeholder="Enter number of days">
+                  <p class="text-note mt-1"><small>*The test will be available from the day the test-taker receives the
+                      test till the number of days specified above.</small></p>
+                </div>
+              </ng-container>           
+  
+              <ng-container *ngIf="form.get('availability_type').value==='1'">
+                <div class="row-date date-view">
+                  <div class="form-group mr-2">
+                    <input class="form-control" formControlName="batchName"
+                           placeholder="Name of batch" />
+                  </div>
+                  <div class="form-group date-view mr-2">
+                    <mat-date-range-input [rangePicker]="rangePicker">
+                      <input matStartDate placeholder="Start date"
+                             [max]="form.get('endDate').value"
+                             formControlName="startDate">
+                      <input matEndDate placeholder="End date" [min]="form.get('startDate').value"
+                             formControlName="endDate">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle  [for]="rangePicker">
+                      <mat-icon matDatepickerToggleIcon>
+                        <span class="owlya-icon">
+                          <i class="calendar-icon"></i>
+                        </span>
+                      </mat-icon>
+                    </mat-datepicker-toggle>
+                    <mat-date-range-picker color="primary" #rangePicker></mat-date-range-picker>
+                  </div>
+  
+                  <div class="form-group mr-2">
+                    <ow-timepicker [placeholder]="'Start Time'"
+                                   (onTimeUpdated)="handleTimeUpdate($event, 'start')"></ow-timepicker>
+                  </div>
+  
+                  <div class="form-group mr-2">
+                    <ow-timepicker  [placeholder]="'End Time'"
+                                    (onTimeUpdated)="handleTimeUpdate($event, 'end')"></ow-timepicker>
+                  </div>
+                  <div class="form-group">
+                    <button type="button"
+                            class="btn small-btn btn-primary"
+                            [disabled]="savingBatch"
+                            (click)="addAvailabilities()" >Add</button>
+                  </div>
+  
+                  <ng-container #container></ng-container>
+  
+                </div>
+  
+            <!-- End here -->
+  
+            <!--   save button added here (needs to be smaller)-->
+  
+                <ng-container *ngIf="availabilities.length" >
+                  <div class="owlya-card">
+                    <h6 class="section-header-title">Batches</h6>
+                    <hr>
+                    <div class="table-widget-wrapper">
+                      <div class="table-widget-main">
+                        <table class="table no-thead-border">
+                          <thead>
+                          <tr>
+                            <th>NAME</th>
+                            <th>DATE</th>
+                            <th>TIME</th>
+                            <th></th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr *ngFor="let date of availabilities; let index = index">
+                            <td>{{date.name}}</td>
+                            <td>{{date.start_date | date: 'MMM d, y'}} -
+                              {{date.end_date | date: 'MMM d, y'}}</td>
+                            <td>{{date.start_time }} -
+                              {{date.end_time }}</td>
+                            <td>
+                              <span class="owlya-table-options">
+                                <span class="owlya-icon" (click)="removeAvailability(index)">
+                                <i class="delete-icon"></i>
+                              </span>
+                              </span>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+  
+                </ng-container>
+              </ng-container>
+  
+              <!-- IMPORT -->
+  
+              <ng-container *ngIf="form.get('availability_type').value === '4'">
+                <div class="row-date date-view">
+                <div class="form-group date-view mr-2" style="display: flex;">
+                  <mat-date-range-input [rangePicker]="rangePicker" style="flex: 1;">
+                    <input matStartDate placeholder="Start date" [max]="form.get('endDate').value" formControlName="release_date">
+                    <input matEndDate placeholder="End date" [min]="form.get('startDate').value" formControlName="due_date">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle [for]="rangePicker">
+                    <mat-icon matDatepickerToggleIcon class="owlya-icon mr-4">
+                      <i class="calendar-icon"></i>
+                    </mat-icon>
+                  </mat-datepicker-toggle>
+                  <mat-date-range-picker color="primary" #rangePicker></mat-date-range-picker>
+                </div>
+              
+                <div class="form-group mr-2" style="display: flex;">
+                  <ow-timepicker [placeholder]="'Start Time'" (onTimeUpdated)="handleTimeUpdate($event, 'start')" class="mr-2"></ow-timepicker>
+                </div>
+                <div class="form-group mr-2" style="display: flex;">
+                  <ow-timepicker [placeholder]="'End Time'" (onTimeUpdated)="handleTimeUpdate($event, 'end')"></ow-timepicker>
+                </div>
+              </div>
+              </ng-container>            
+                       
+  
+              <!-- END IMPORT -->
+  
+              <div class="modal-form">
+                <h6 class="mt-2">Proctor Settings</h6>
+                <div class="option-check-list">
+                  <mat-checkbox formControlName="enable_live_stream" name="enable_live_stream">
+                    <span>Enable live stream (Watch the student live while taking the test)</span>
+                  </mat-checkbox>
+                  <mat-checkbox formControlName="verify_identity" name="verifyIdentity">
+                    <span>Verify user identity</span>
+                  </mat-checkbox>
+                  <mat-checkbox formControlName="window_activities" name="trackWindowActivities">
+                    <span>Track window activities (clipboard, mouse)</span>
+                  </mat-checkbox>
+  
+  
+                  <ow-form-error-message [errors]="errors" [field]="'enable_live_stream'"
+                                         [fieldLabel]="'Live stream'" [form]="form">
+                  </ow-form-error-message>
+  
+                  <mat-checkbox formControlName="record_screen" name="recordScreen">
+                    <span>Track screen</span>
+                  </mat-checkbox>
+  
+  
+                  <ow-form-error-message [errors]="errors" [field]="'verify_identity'"
+                                         [fieldLabel]="'Verify identity'" [form]="form">
+                  </ow-form-error-message>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!--added payment type request-->
+          <hr/>
+          <div class="payments">
+            <h6 class="mt-2">Payment</h6>
+            <div class="info-alert" *ngIf="!settings?.is_owlya_pay_enabled" (click)="close()">
+              Owlya Pay is not activated for this account.
+              <a routerLink="/dashboard/owlya-pay">Click here</a> to activate Owlya Pay</div>
+            <div class="option-check-list mt-2">
+              <mat-checkbox [disabled]="!settings?.is_owlya_pay_enabled"
+                            formControlName="payment_request" name="paymentRequest">
+                <span>Request payment before taking assessment</span>
+              </mat-checkbox>
+            </div>
+            <ng-container *ngIf="form.get('payment_request').value">
+              <div class="flexer-inline" >
+                <div class="form-group small-group mr-5">
+                  <label><b>Currency</b></label>
+                  <mat-form-field class="select-control">
+                    <mat-select formControlName="currency" name="currency">
+                      <mat-option [value]="curr.value" *ngFor="let curr of currency">
+                        {{curr.name}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <ow-form-error-message [errors]="errors" [field]="'currency'"
+                                         [fieldLabel]="'Currency'" [form]="form">
+                  </ow-form-error-message>
+                </div>
+                <div class="inline-form">
+                  <div class="form-group small-group">
+                    <label ><b>Amount</b></label>
+                    <input type="number" class="form-control" min="0"
+                           formControlName="amount" />
+  
+                    <ow-form-error-message [errors]="errors" [field]="'amount'"
+                                           [fieldLabel]="'Amount'" [form]="form">
+                    </ow-form-error-message>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 form-group">
+                <p>Share payment this payment link with test takers.</p>
+                <div class="flexer-inline">
+                  <input type="text" class="form-control"
+                         style="width: 80%"
+                         formControlName="payment_link"  readonly id="paymentLink"/>
+                  <div>
+                    <span  matTooltip="Copy payment link"
+                          (click)="copyText('#paymentLink')">
+                <span class="owlya-icon"><i class="copy-icon"></i></span>
+              </span>
+                  </div>
+                </div>
+  
+              </div>
+            </ng-container>
+          </div>
+          <hr/>
+        <!--payment ends here-->
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <h6>AI Proctoring Settings</h6>
+              <p class="text-note">"Record video" option is best for users with internet bandwidth greater than 600kbps. If
+                you are targeting user with low internet bandwidth we recommend
+                "Take Photo" option. Select "None" to disable AI Proctoring</p>
+            </div>
+            <div class="col-md-12">
+              <div class="option-check-list three-inline">
+                <mat-radio-group formControlName="record_video">
+                  <mat-radio-button value="video">
+                    <span>Record video</span>
+                  </mat-radio-button>
+                  <mat-radio-button value="image">
+                    <span>Take photo</span>
+                  </mat-radio-button>
+                  <mat-radio-button value="">
+                    <span>None</span>
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
+              <ow-form-error-message [errors]="errors" [field]="'record_video'"
+                                     [fieldLabel]="'AI Proctoring'" [form]="form">
+              </ow-form-error-message>
+              <div class="mt-3" *ngIf="form.get('record_video').value=='image'">
+                <div class="flex-center no-wrap mt-4">
+                  <div class="inline-form mb-2">
+                    <div class="form-group">
+                      <label ><b>Interval in seconds</b></label>
+                      <input type="number" class="form-control" max="100" min="0"
+                             formControlName="photo_time_interval" />
+  
+                      <ow-form-error-message [errors]="errors" [field]="'photo_time_interval'"
+                                             [fieldLabel]="'Photo time interval'" [form]="form">
+                      </ow-form-error-message>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr class="mb-3"/>
+          <div class="row">
+            <div class="col-md-6">
+              <mat-checkbox
+                            [ngbTooltip]="'Test-takers would be required to share location to proceed'"
+                            formControlName="require_location" name="require_location">
+                <span>Collect test-taker's location</span>
+              </mat-checkbox>
+              <ow-form-error-message [errors]="errors" [field]="'require_location'"
+                                     [fieldLabel]="'Location'" [form]="form">
+              </ow-form-error-message>
+            </div>
+            <div class="col-md-6">
+              <mat-checkbox formControlName="published" name="published">
+                <span>Publish</span>
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+        <div class="inline-btns right-align">
+          <button class="btn small-btn btn-cancel" type="button" (click)="close()">Cancel</button>
+          <button  class="btn small-btn btn-primary" [disabled]="isLoading || form.invalid">Done</button>
+        </div>
+      </form>
+    </mat-dialog-content>
+  </div>
+  
