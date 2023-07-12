@@ -24,3 +24,23 @@
 //   }
 
   
+
+// ASSESSMENT SERVICES
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ScoreSheetService {
+  constructor(private http: HttpClient) {}
+
+  exportScoreSheet(startDate: string, endDate: string): Observable<any> {
+    const url = 'api/v3/export-score-sheet/';
+    const body = { startDate, endDate };
+
+    return this.http.post(url, body, { responseType: 'text' });
+  }
+}
